@@ -93,8 +93,8 @@
   } while (0)
 #define ASSERT_STRINGS_EQUAL(e1, e2) \
   do { \
-    auto _v1 = (e1); \
-    auto _v2 = (e2); \
+    std::string _v1 = (e1); \
+    std::string _v2 = (e2); \
     if (!do_assert(_v1 == _v2)) { \
       PRINT_ERROR(); \
       std::cerr << "     Strings `" #e1 "' (1) and `" #e2 "' (2) are not equal." << std::endl; \
