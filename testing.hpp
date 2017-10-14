@@ -55,6 +55,7 @@
       PRINT_ERROR(); \
       std::cerr << "     Expression `" #expression "' is not true." << std::endl; \
       std::cerr << "     Value is " << repr(_value) << std::endl; \
+      handle_failfast(); \
     } \
   } while (0)
 #define ASSERT_FALSE(expression) \
@@ -64,6 +65,7 @@
       PRINT_ERROR(); \
       std::cerr << "     Expression `" #expression "' is not false." << std::endl; \
       std::cerr << "     Value is " << repr(_value) << std::endl; \
+      handle_failfast(); \
     } \
   } while (0)
 #define ASSERT_RELATION(e1, rel, e2) \
@@ -74,6 +76,7 @@
       PRINT_ERROR(); \
       std::cerr << "     Expression `" #e1 " " #rel " " #e2 "' is not true." << std::endl; \
       std::cerr << "     " << #e1 " = " << repr(_v1) << ", " #e2 " = " << repr(_v2) << std::endl; \
+      handle_failfast(); \
     } \
   } while (0)
 #define ASSERT_EQUAL(e1, e2) \
@@ -84,6 +87,7 @@
       PRINT_ERROR(); \
       std::cerr << "     Expressions `" #e1 "' and `" #e2 "' are not equal." << std::endl; \
       std::cerr << "     " << #e1 " = " << repr(_v1) << ", " #e2 " = " << repr(_v2) << std::endl; \
+      handle_failfast(); \
     } \
   } while (0)
 #define ASSERT_ALMOST_EQUAL(e1, e2, precision) \
@@ -94,6 +98,7 @@
       PRINT_ERROR(); \
       std::cerr << "     Expressions `" #e1 "' and `" #e2 "' are not almost equal." << std::endl; \
       std::cerr << "     " << #e1 " = " << repr(_v1) << ", " #e2 " = " << repr(_v2) << std::endl; \
+      handle_failfast(); \
     } \
   } while (0)
 #define ASSERT_STRINGS_EQUAL(e1, e2) \
@@ -105,6 +110,7 @@
       std::cerr << "     Strings `" #e1 "' (1) and `" #e2 "' (2) are not equal." << std::endl; \
       std::cerr << "     (1): '" << _v1 << "'," << std::endl; \
       std::cerr << "     (2): '" << _v2 << "'"  << std::endl; \
+      handle_failfast(); \
     } \
   } while (0)
 #define ASSERT_THROWS(exception_class, expression) \
@@ -119,6 +125,7 @@
     if (!do_assert(caught)) { \
       PRINT_ERROR(); \
       std::cerr << "     Exception " << #exception_class << " not thrown." << std::endl; \
+      handle_failfast(); \
     } \
   } while(0)
 
@@ -130,6 +137,7 @@ uint16_t repr(const uint8_t value) { return value; }
 struct TestCase {
   unsigned assertions_total;
   unsigned assertions_successful;
+  bool failfast;
 
   bool do_assert(bool condition) {
     ++assertions_total;
@@ -137,6 +145,13 @@ struct TestCase {
       ++assertions_successful;
     }
     return condition;
+  }
+
+  void handle_failfast() {
+    if (failfast) {
+      std::cerr << "Exiting immediately because failfast = true." << std::endl;
+      exit(1);
+    }
   }
 
   virtual void run() = 0;
@@ -169,19 +184,40 @@ void signal_handler(int signum) {
   exit(128 + signum);
 }
 
-int main() {
+void print_help(const char *command_name) {
+  std::cout << "Usage: " << command_name << " [-f] [-n]" << std::endl;
+  std::cout << std::endl;
+  std::cout << "  -f, --fail-fast: Exit after first failure" << std::endl;
+  std::cout << "  -n, --no-catch:  Do not catch C++ exceptions (useful for debugging)" << std::endl;
+}
+
+int main(int argc, char **argv) {
+  bool failfast = false;
+  bool nocatch = false;
+
+  for (int i = 1; i < argc; ++i) {
+    char *arg = argv[i];
+    if (!strcmp(arg, "--fail-fast") || !strcmp(arg, "-f")) {
+      failfast = true;
+    } else if (!strcmp(arg, "--no-catch") || !strcmp(arg, "-n")) {
+      nocatch = true;
+    } else {
+      print_help(argv[0]);
+      return 0;
+    }
+  }
+
 #ifdef __USE_GNU
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
 #endif
 
   signal(SIGSEGV, signal_handler);
-  char *nocatch_str = getenv("NOCATCH");
-  bool nocatch = nocatch_str && nocatch_str[0] == '1';
 
   int result = 0;
   for (const TestCaseInfo &info: storage) {
     std::cout << " * " << info.name << std::endl;
     TestCase *test_case = info.test_case;
+    test_case->failfast = failfast;
     bool success = true;
     if (nocatch) {
       test_case->run();
