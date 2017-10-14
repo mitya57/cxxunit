@@ -27,10 +27,15 @@
 #include <cfenv>
 #include <cmath>
 #include <cstdlib>
+#include <csignal>
+#include <cstring>
 #include <exception>
 #include <iostream>
 #include <vector>
 #include "printing.hpp"
+#ifdef __linux__
+#  include <execinfo.h>
+#endif
 
 #ifdef _MSC_VER
 #  define __PRETTY_FUNCTION__ __FUNCTION__
@@ -151,11 +156,25 @@ struct TestCaseProcessor {
   }
 };
 
+void signal_handler(int signum) {
+  std::cerr << E_ERROR("Signal occurred") << ": " << strsignal(signum) << std::endl;
+  /* Print the backtrace if possible */
+#ifdef __linux__
+  void *buffer[10];
+  size_t size = backtrace(buffer, 10);
+  backtrace_symbols_fd(buffer, size, STDERR_FILENO);
+#endif
+  /* Now call the default handler */
+  signal(signum, SIG_DFL);
+  exit(128 + signum);
+}
+
 int main() {
 #ifdef __USE_GNU
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
 #endif
 
+  signal(SIGSEGV, signal_handler);
   char *nocatch_str = getenv("NOCATCH");
   bool nocatch = nocatch_str && nocatch_str[0] == '1';
 
