@@ -31,6 +31,7 @@ struct PassingTestCase: TestCase {
     ASSERT_ALMOST_EQUAL(1, 1.5, 0.6);
     ASSERT_STRINGS_EQUAL("foo", std::string("foo"));
     ASSERT_STRINGS_EQUAL("foo", std::string("foo").c_str());
+    ASSERT_FLOATS_EQUAL(10.000000000000001, 10.000000000000009);
     std::vector<int> v;
     ASSERT_THROWS(std::out_of_range, v.at(1));
   }

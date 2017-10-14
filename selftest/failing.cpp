@@ -30,6 +30,7 @@ struct FailingTestCase: TestCase {
     ASSERT_EQUAL(1 + 1, 3);
     ASSERT_ALMOST_EQUAL(1, 1.5, 0.4);
     ASSERT_STRINGS_EQUAL("foo", std::string("bar"));
+    ASSERT_FLOATS_EQUAL(0.0000000001, 0.000000001);
     std::vector<int> v = { 0, 1 };
     ASSERT_THROWS(std::out_of_range, v.at(1));
     void (*func)() = nullptr;

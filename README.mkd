@@ -23,5 +23,6 @@ In the `run` method, the following macros are supported:
 - `ASSERT_RELATION(e1, rel, e2)`, for example `ASSERT_RELATION(e1, <=, e2)`;
 - `ASSERT_EQUAL(e1, e2)`;
 - `ASSERT_ALMOST_EQUAL(e1, e2, precision)`;
+- `ASSERT_FLOATS_EQUAL(e1, e2)` — for fuzzy comparison of floats and doubles;
 - `ASSERT_STRINGS_EQUAL(e1, e2)` — with better formatted output for strings;
 - `ASSERT_THROWS(exception_class, expression)`.

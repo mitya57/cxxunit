@@ -113,6 +113,17 @@
       handle_failfast(); \
     } \
   } while (0)
+#define ASSERT_FLOATS_EQUAL(e1, e2) \
+  do { \
+    auto _v1 = (e1); \
+    auto _v2 = (e2); \
+    if (!do_assert(compare_floats(_v1, _v2))) { \
+      PRINT_ERROR(); \
+      std::cerr << "     Floating point numbers `" #e1 "' and `" #e2 "' are not equal." << std::endl; \
+      std::cerr << "     " << #e1 " = " << repr(_v1) << ", " #e2 " = " << repr(_v2) << std::endl; \
+      handle_failfast(); \
+    } \
+  } while (0)
 #define ASSERT_THROWS(exception_class, expression) \
   do { \
     bool caught = false; \
@@ -133,6 +144,14 @@ template<typename T>
 T repr(const T value) { return value; }
 
 uint16_t repr(const uint8_t value) { return value; }
+
+bool compare_floats(float v1, float v2) {
+  return (std::fabs(v1 - v2) * 100000.f <= std::min(fabs(v1), fabs(v2)));
+}
+
+bool compare_floats(double v1, double v2) {
+  return (std::fabs(v1 - v2) * 1000000000000. <= std::min(fabs(v1), fabs(v2)));
+}
 
 struct TestCase {
   unsigned assertions_total;
