@@ -1,0 +1,27 @@
+This is a simple C++ unit testing library. It requires C++11 or newer.
+
+Usage example:
+
+```c++
+#include "testing.hpp"
+
+struct test_FirstAndTrivial: TestCase {
+  void run() override {
+    unsigned int val = 1;
+
+    ASSERT_EQUAL((val + 1) / 2, 1);
+  }
+};
+
+REGISTER_TEST(test_FirstAndTrivial, "Arithmetic operations");
+```
+
+In the `run` method, the following macros are supported:
+
+- `ASSERT_TRUE(expression)`;
+- `ASSERT_FALSE(expression)`;
+- `ASSERT_RELATION(e1, rel, e2)`, for example `ASSERT_RELATION(e1, <=, e2)`;
+- `ASSERT_EQUAL(e1, e2)`;
+- `ASSERT_ALMOST_EQUAL(e1, e2, precision)`;
+- `ASSERT_STRINGS_EQUAL(e1, e2)` — with better formatted output for strings;
+- `ASSERT_THROWS(exception_class, expression)`.
