@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <exception>
 #include <iostream>
+#include <string>
 #include <vector>
 #include "printing.hpp"
 #ifdef __linux__
