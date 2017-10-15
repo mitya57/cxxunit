@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <csignal>
 #include <cstring>
+#include <algorithm>
 #include <exception>
 #include <iostream>
 #include <vector>
