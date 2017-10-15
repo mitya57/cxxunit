@@ -160,6 +160,12 @@ struct TestCase {
   unsigned assertions_successful;
   bool failfast;
 
+  TestCase():
+    assertions_total(0),
+    assertions_successful(0),
+    failfast(false)
+  {}
+
   bool do_assert(bool condition) {
     ++assertions_total;
     if (condition) {
