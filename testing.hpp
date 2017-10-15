@@ -27,7 +27,6 @@
 #include <cfenv>
 #include <cmath>
 #include <cstdlib>
-#include <csignal>
 #include <cstring>
 #include <algorithm>
 #include <exception>
@@ -35,6 +34,7 @@
 #include <vector>
 #include "printing.hpp"
 #ifdef __linux__
+#  include <csignal>
 #  include <execinfo.h>
 #endif
 
@@ -191,18 +191,18 @@ struct TestCaseProcessor {
   }
 };
 
+#ifdef __linux__
 void signal_handler(int signum) {
   std::cerr << E_ERROR("Signal occurred") << ": " << strsignal(signum) << std::endl;
-  /* Print the backtrace if possible */
-#ifdef __linux__
+  /* Print the backtrace */
   void *buffer[10];
   size_t size = backtrace(buffer, 10);
   backtrace_symbols_fd(buffer, size, STDERR_FILENO);
-#endif
   /* Now call the default handler */
   signal(signum, SIG_DFL);
   exit(128 + signum);
 }
+#endif
 
 void print_help(const char *command_name) {
   std::cout << "Usage: " << command_name << " [-f] [-n]" << std::endl;
@@ -230,8 +230,9 @@ int main(int argc, char **argv) {
 #ifdef __USE_GNU
   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW);
 #endif
-
+#ifdef __linux__
   signal(SIGSEGV, signal_handler);
+#endif
 
   int result = 0;
   for (const TestCaseInfo &info: storage) {
