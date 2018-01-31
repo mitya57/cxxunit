@@ -21,8 +21,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef CXXUNIT_COLORS_HPP
-#define CXXUNIT_COLORS_HPP
+#ifndef CXXUNIT_PRINTING_HPP
+#define CXXUNIT_PRINTING_HPP
 
 #if defined (_WIN32) || defined (WIN32)
   #define colorize(color, text, fd) (text)
@@ -77,4 +77,4 @@ std::string colorize(unsigned short color, std::string const &text, int fd) {
 #define E_WARNING(text) colorize(COLOR_BROWN, text, STDERR_FILENO)
 #define E_SUCCESS(text) colorize(COLOR_DARK_GREEN, text, STDERR_FILENO)
 
-#endif /* CXXUNIT_COLORS_HPP */
+#endif /* CXXUNIT_PRINTING_HPP */
