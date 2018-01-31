@@ -34,7 +34,7 @@
 #include <string>
 #include <unistd.h>
 
-std::string colorize(unsigned short color, std::string text, int fd) {
+std::string colorize(unsigned short color, std::string const &text, int fd) {
   if (isatty(fd)) {
     std::stringstream stream;
     stream << "\x1b[" << std::hex << (color & 0xff);
